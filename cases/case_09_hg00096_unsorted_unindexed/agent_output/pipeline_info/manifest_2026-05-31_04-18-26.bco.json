@@ -1,0 +1,758 @@
+{
+    "object_id": "urn:uuid:d3d30f4d-c403-413d-affb-c4c0e7918cac",
+    "spec_version": "https://w3id.org/ieee/ieee-2791-schema/2791object.json",
+    "etag": "c43c0385b901d8647b8e19f1fa1c2495",
+    "provenance_domain": {
+        "name": "pgscatalog/pgsc_calc",
+        "version": "2.2.0",
+        "created": "2026-05-31T04:18:27.924293913Z",
+        "modified": "2026-05-31T04:18:27.924293913Z",
+        "contributors": [
+            {
+                "contribution": [
+                    "authoredBy"
+                ],
+                "name": "Samuel Lambert"
+            },
+            {
+                "contribution": [
+                    "authoredBy"
+                ],
+                "name": "Benjamin Wingfield"
+            }
+        ],
+        "license": ""
+    },
+    "usability_domain": [
+        
+    ],
+    "extension_domain": [
+        {
+            "extension_schema": "https://w3id.org/biocompute/extension_domain/1.1.0/scm/scm_extension.json",
+            "scm_extension": {
+                "scm_repository": "https://github.com/pgscatalog/pgsc_calc",
+                "scm_type": "git",
+                "scm_commit": "2aad46efb41d202de0b281f533f7d81f5b814095",
+                "scm_path": "main.nf",
+                "scm_preview": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/main.nf"
+            }
+        }
+    ],
+    "description_domain": {
+        "keywords": [
+            
+        ],
+        "platform": [
+            "Nextflow"
+        ],
+        "pipeline_steps": [
+            {
+                "step_number": 1,
+                "name": "849ca92e53edae078decf932b862b441",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:DOWNLOAD_SCOREFILES ([pgs_id:PGS000577, pgp_id:, trait_efo:])",
+                "input_list": [
+                    
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/84/9ca92e53edae078decf932b862b441/PGS000577_hmPOS_GRCh38.txt.gz"
+                    },
+                    {
+                        "uri": "work/84/9ca92e53edae078decf932b862b441/versions.yml"
+                    }
+                ]
+            },
+            {
+                "step_number": 2,
+                "name": "ddc35a7cdb59a1b88e2487bba13d077a",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:MAKE_COMPATIBLE:PLINK2_VCF (HG00096 chromosome ALL)",
+                "input_list": [
+                    {
+                        "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096_imputed.vcf.gz"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.pgen"
+                    },
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.psam"
+                    },
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.pvar.zst"
+                    },
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.vmiss.gz"
+                    },
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.afreq.gz"
+                    },
+                    {
+                        "uri": "work/genomes/recoded/versions.yml"
+                    }
+                ]
+            },
+            {
+                "step_number": 3,
+                "name": "dee4e6059394c5167906d54aa5aaf4de",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:INPUT_CHECK:FORMAT_SCOREFILES (1)",
+                "input_list": [
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/NO_FILE"
+                    },
+                    {
+                        "uri": "work/84/9ca92e53edae078decf932b862b441/PGS000577_hmPOS_GRCh38.txt.gz"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/de/e4e6059394c5167906d54aa5aaf4de/formatted/normalised_PGS000577_hmPOS_GRCh38.txt.gz"
+                    },
+                    {
+                        "uri": "work/de/e4e6059394c5167906d54aa5aaf4de/formatted/log_scorefiles.json"
+                    },
+                    {
+                        "uri": "work/de/e4e6059394c5167906d54aa5aaf4de/versions.yml"
+                    }
+                ]
+            },
+            {
+                "step_number": 4,
+                "name": "db730594507ec309a99c3d82bc0eb2e7",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:MATCH:MATCH_VARIANTS (HG00096 chromosome ALL)",
+                "input_list": [
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.pvar.zst"
+                    },
+                    {
+                        "uri": "work/de/e4e6059394c5167906d54aa5aaf4de/formatted/normalised_PGS000577_hmPOS_GRCh38.txt.gz"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/db/730594507ec309a99c3d82bc0eb2e7/0.ipc.zst"
+                    },
+                    {
+                        "uri": "work/db/730594507ec309a99c3d82bc0eb2e7/versions.yml"
+                    }
+                ]
+            },
+            {
+                "step_number": 5,
+                "name": "a6110c688e2cd8729a55b9e3c0d1e48b",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:MATCH:MATCH_COMBINE (HG00096)",
+                "input_list": [
+                    {
+                        "uri": "work/db/730594507ec309a99c3d82bc0eb2e7/0.ipc.zst"
+                    },
+                    {
+                        "uri": "work/de/e4e6059394c5167906d54aa5aaf4de/formatted/normalised_PGS000577_hmPOS_GRCh38.txt.gz"
+                    },
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/NO_FILE"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_ALL_additive_0.scorefile.gz"
+                    },
+                    {
+                        "uri": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_summary.csv"
+                    },
+                    {
+                        "uri": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_log.csv.gz"
+                    },
+                    {
+                        "uri": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/versions.yml"
+                    }
+                ]
+            },
+            {
+                "step_number": 6,
+                "name": "fabe4063800261732f3ee7f5d340c244",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:APPLY_SCORE:PLINK2_SCORE (HG00096 chromosome ALL effect type additive 0)",
+                "input_list": [
+                    {
+                        "uri": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_ALL_additive_0.scorefile.gz"
+                    },
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/NO_FILE"
+                    },
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.pgen"
+                    },
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.psam"
+                    },
+                    {
+                        "uri": "work/genomes/recoded/GRCh38_HG00096_ALL.pvar.zst"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/fa/be4063800261732f3ee7f5d340c244/HG00096_ALL_additive_0.sscore.zst"
+                    },
+                    {
+                        "uri": "work/fa/be4063800261732f3ee7f5d340c244/HG00096_ALL_additive_0.sscore.vars"
+                    },
+                    {
+                        "uri": "work/fa/be4063800261732f3ee7f5d340c244/HG00096_ALL_additive_0.log"
+                    },
+                    {
+                        "uri": "work/fa/be4063800261732f3ee7f5d340c244/versions.yml"
+                    }
+                ]
+            },
+            {
+                "step_number": 7,
+                "name": "5225f7adb5b3d7bae19505fa9e506f5f",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:APPLY_SCORE:SCORE_AGGREGATE (HG00096)",
+                "input_list": [
+                    {
+                        "uri": "work/fa/be4063800261732f3ee7f5d340c244/HG00096_ALL_additive_0.sscore.zst"
+                    },
+                    {
+                        "uri": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_ALL_additive_0.scorefile.gz"
+                    },
+                    {
+                        "uri": "work/fa/be4063800261732f3ee7f5d340c244/HG00096_ALL_additive_0.sscore.vars"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/52/25f7adb5b3d7bae19505fa9e506f5f/aggregated_scores.txt.gz"
+                    },
+                    {
+                        "uri": "work/52/25f7adb5b3d7bae19505fa9e506f5f/versions.yml"
+                    }
+                ]
+            },
+            {
+                "step_number": 8,
+                "name": "6907295c06ad1e13c3ca4a7d38d641bf",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:REPORT:SCORE_REPORT (HG00096)",
+                "input_list": [
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/report/PGS_Logo.png"
+                    },
+                    {
+                        "uri": "work/de/e4e6059394c5167906d54aa5aaf4de/formatted/log_scorefiles.json"
+                    },
+                    {
+                        "uri": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_summary.csv"
+                    },
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/report/report.qmd"
+                    },
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/report/pgs_header_background.png"
+                    },
+                    {
+                        "uri": "work/52/25f7adb5b3d7bae19505fa9e506f5f/aggregated_scores.txt.gz"
+                    },
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/report/logo.css"
+                    },
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/NO_FILE"
+                    },
+                    {
+                        "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/NO_FILE_INTERSECT_COUNT"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/69/07295c06ad1e13c3ca4a7d38d641bf/aggregated_scores.txt.gz"
+                    },
+                    {
+                        "uri": "work/69/07295c06ad1e13c3ca4a7d38d641bf/report.html"
+                    },
+                    {
+                        "uri": "work/69/07295c06ad1e13c3ca4a7d38d641bf/versions.yml"
+                    }
+                ]
+            },
+            {
+                "step_number": 9,
+                "name": "5c5090415b69e080c44d3b6ff5741ec9",
+                "description": "PGSCATALOG_PGSCCALC:PGSCCALC:DUMPSOFTWAREVERSIONS (1)",
+                "input_list": [
+                    {
+                        "uri": "work/tmp/64/4f06c6884154626c5c14e5dbe7965c/collated_versions.yml"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "uri": "work/5c/5090415b69e080c44d3b6ff5741ec9/software_versions.yml"
+                    },
+                    {
+                        "uri": "work/5c/5090415b69e080c44d3b6ff5741ec9/software_versions_mqc.yml"
+                    },
+                    {
+                        "uri": "work/5c/5090415b69e080c44d3b6ff5741ec9/versions.yml"
+                    }
+                ]
+            }
+        ]
+    },
+    "execution_domain": {
+        "script": [
+            "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/main.nf"
+        ],
+        "script_driver": "nextflow",
+        "software_prerequisites": [
+            {
+                "name": "Nextflow",
+                "version": "25.10.4",
+                "uri": {
+                    "uri": "https://github.com/nextflow-io/nextflow/releases/tag/v25.10.4"
+                }
+            }
+        ],
+        "external_data_endpoints": [
+            
+        ],
+        "environment_variables": {
+            
+        }
+    },
+    "parametric_domain": [
+        {
+            "param": "input",
+            "value": "cases/case_09_hg00096_unsorted_unindexed/agent_output/samplesheet.csv",
+            "step": "0"
+        },
+        {
+            "param": "format",
+            "value": "csv",
+            "step": "0"
+        },
+        {
+            "param": "scorefile",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "pgs_id",
+            "value": "PGS000577",
+            "step": "0"
+        },
+        {
+            "param": "trait_efo",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "efo_id",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "pgp_id",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "efo_direct",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "run_ancestry",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "ancestry_checksums",
+            "value": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/ancestry/checksums.txt",
+            "step": "0"
+        },
+        {
+            "param": "hg19_chain",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "hg38_chain",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "load_afreq",
+            "value": "true",
+            "step": "0"
+        },
+        {
+            "param": "geno_ref",
+            "value": "0.1",
+            "step": "0"
+        },
+        {
+            "param": "mind_ref",
+            "value": "0.1",
+            "step": "0"
+        },
+        {
+            "param": "maf_ref",
+            "value": "0.05",
+            "step": "0"
+        },
+        {
+            "param": "hwe_ref",
+            "value": "0.0001",
+            "step": "0"
+        },
+        {
+            "param": "indep_pairwise_ref",
+            "value": "1000 50 0.05",
+            "step": "0"
+        },
+        {
+            "param": "ld_grch37",
+            "value": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/ancestry/high-LD-regions-hg19-GRCh37.txt",
+            "step": "0"
+        },
+        {
+            "param": "ld_grch38",
+            "value": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/ancestry/high-LD-regions-hg38-GRCh38.txt",
+            "step": "0"
+        },
+        {
+            "param": "ref_format_version",
+            "value": "v0.1",
+            "step": "0"
+        },
+        {
+            "param": "ref_samplesheet",
+            "value": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/ancestry/reference.csv",
+            "step": "0"
+        },
+        {
+            "param": "projection_method",
+            "value": "oadp",
+            "step": "0"
+        },
+        {
+            "param": "ancestry_method",
+            "value": "RandomForest",
+            "step": "0"
+        },
+        {
+            "param": "ref_label",
+            "value": "SuperPop",
+            "step": "0"
+        },
+        {
+            "param": "n_popcomp",
+            "value": "5",
+            "step": "0"
+        },
+        {
+            "param": "normalization_method",
+            "value": "empirical mean mean+var",
+            "step": "0"
+        },
+        {
+            "param": "n_normalization",
+            "value": "4",
+            "step": "0"
+        },
+        {
+            "param": "pca_maf_target",
+            "value": "0",
+            "step": "0"
+        },
+        {
+            "param": "pca_geno_miss_target",
+            "value": "0.1",
+            "step": "0"
+        },
+        {
+            "param": "liftover",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "target_build",
+            "value": "GRCh38",
+            "step": "0"
+        },
+        {
+            "param": "min_lift",
+            "value": "0.95",
+            "step": "0"
+        },
+        {
+            "param": "min_overlap",
+            "value": "1.0E-4",
+            "step": "0"
+        },
+        {
+            "param": "keep_ambiguous",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "keep_multiallelic",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "copy_genomes",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "genotypes_cache",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "only_bootstrap",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "only_input",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "only_compatible",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "only_match",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "only_projection",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "only_score",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "skip_ancestry",
+            "value": "true",
+            "step": "0"
+        },
+        {
+            "param": "outdir",
+            "value": "cases/case_09_hg00096_unsorted_unindexed/agent_output",
+            "step": "0"
+        },
+        {
+            "param": "publish_dir_mode",
+            "value": "copy",
+            "step": "0"
+        },
+        {
+            "param": "email",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "email_on_fail",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "plaintext_email",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "monochrome_logs",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "hook_url",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "help",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "version",
+            "value": "false",
+            "step": "0"
+        },
+        {
+            "param": "config_profile_name",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "config_profile_description",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "custom_config_version",
+            "value": "master",
+            "step": "0"
+        },
+        {
+            "param": "custom_config_base",
+            "value": "https://raw.githubusercontent.com/nf-core/configs/master",
+            "step": "0"
+        },
+        {
+            "param": "config_profile_contact",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "config_profile_url",
+            "value": "null",
+            "step": "0"
+        },
+        {
+            "param": "max_memory",
+            "value": "14.GB",
+            "step": "0"
+        },
+        {
+            "param": "max_cpus",
+            "value": "4",
+            "step": "0"
+        },
+        {
+            "param": "max_time",
+            "value": "240.h",
+            "step": "0"
+        },
+        {
+            "param": "parallel",
+            "value": "null",
+            "step": "0"
+        }
+    ],
+    "io_domain": {
+        "input_subdomain": [
+            {
+                "uri": {
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096_imputed.vcf.gz"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/NO_FILE"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/report/PGS_Logo.png"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/report/report.qmd"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/report/pgs_header_background.png"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/report/logo.css"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "https://github.com/pgscatalog/pgsc_calc/tree/2aad46efb41d202de0b281f533f7d81f5b814095/assets/NO_FILE_INTERSECT_COUNT"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "work/tmp/64/4f06c6884154626c5c14e5dbe7965c/collated_versions.yml"
+                }
+            }
+        ],
+        "output_subdomain": [
+            {
+                "mediatype": "application/yaml",
+                "uri": {
+                    "filename": "work/db/730594507ec309a99c3d82bc0eb2e7/versions.yml",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096/match/versions.yml"
+                }
+            },
+            {
+                "mediatype": "application/gzip",
+                "uri": {
+                    "filename": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_ALL_additive_0.scorefile.gz",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096/match/HG00096_ALL_additive_0.scorefile.gz"
+                }
+            },
+            {
+                "mediatype": "text/csv",
+                "uri": {
+                    "filename": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_summary.csv",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096/match/HG00096_summary.csv"
+                }
+            },
+            {
+                "mediatype": "application/gzip",
+                "uri": {
+                    "filename": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/HG00096_log.csv.gz",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096/match/HG00096_log.csv.gz"
+                }
+            },
+            {
+                "mediatype": "application/yaml",
+                "uri": {
+                    "filename": "work/a6/110c688e2cd8729a55b9e3c0d1e48b/versions.yml",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096/match/versions.yml"
+                }
+            },
+            {
+                "mediatype": "application/gzip",
+                "uri": {
+                    "filename": "work/69/07295c06ad1e13c3ca4a7d38d641bf/aggregated_scores.txt.gz",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096/score/aggregated_scores.txt.gz"
+                }
+            },
+            {
+                "mediatype": "application/yaml",
+                "uri": {
+                    "filename": "work/69/07295c06ad1e13c3ca4a7d38d641bf/versions.yml",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096/score/versions.yml"
+                }
+            },
+            {
+                "mediatype": "text/html",
+                "uri": {
+                    "filename": "work/69/07295c06ad1e13c3ca4a7d38d641bf/report.html",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096/score/report.html"
+                }
+            },
+            {
+                "mediatype": "application/yaml",
+                "uri": {
+                    "filename": "work/5c/5090415b69e080c44d3b6ff5741ec9/software_versions.yml",
+                    "uri": "cases/case_09_hg00096_unsorted_unindexed/agent_output/pipeline_info/software_versions.yml"
+                }
+            }
+        ]
+    },
+    "error_domain": {
+        "empirical_error": {
+            
+        },
+        "algorithmic_error": {
+            
+        }
+    }
+}

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+.vscode/
+.idea/
+
+# Nextflow work directories (intermediates only, not final pgsc_calc outputs)
+**/work/
+**/.nextflow/
+**/.nextflow.log*
+
+# Large reference data (commit per-case fixtures only)
+*.bam
+*.cram
+*.fasta
+*.fa
+
+# large per-case fixtures (>100MB GitHub limit) — regenerate via build_fixture.py
+cases/case_04_hg00096_t2d_full_coverage/input/
+cases/case_08_hg00096_conflicting_build_signals/input/
+scoring_models/PGS000330/
+
+# heavy independent pgsc_calc run outputs — gold value lives in expected_output.md
+cases/case_04_hg00096_t2d_full_coverage/expected_output/reference_run/

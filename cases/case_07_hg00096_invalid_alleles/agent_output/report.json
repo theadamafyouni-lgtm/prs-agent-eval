@@ -1,0 +1,106 @@
+{
+  "pgs_id": "PGS000577",
+  "sample_id": "HG00096",
+  "status": "FAILED_COVERAGE_THRESHOLD",
+  "prs_value": null,
+  "prs_not_reported_reason": "Coverage 79.28% is below the required 90% threshold. A partial score below threshold is not a valid result.",
+
+  "genome_build": {
+    "identified_build": "GRCh38",
+    "evidence": "Contig lengths from VCF header ##contig entries match GRCh38 canonical lengths: chr1=248956422, chr2=242193529, chr3=198295559. No ##reference= or ##assembly= fields were present; contig lengths were the highest-authority signal consulted.",
+    "scoring_model_build": "GRCh38 (harmonized; HmPOS_build=GRCh38)",
+    "build_match": true
+  },
+
+  "variant_counts": {
+    "total_in_scoring_model": 117,
+    "sex_chromosome_excluded": {
+      "count": 6,
+      "chromosomes": ["X"],
+      "note": "X-chromosome variants excluded from scoring, imputation, and coverage calculation per autosomal-PRS standard practice"
+    },
+    "total_autosomal_required": 111,
+    "palindromic_autosomal": {
+      "count": 9,
+      "excluded_from_numerator": true,
+      "included_in_denominator": true,
+      "variants": [
+        {"hm_chr": "3",  "hm_pos": 107243674, "effect_allele": "G", "other_allele": "C"},
+        {"hm_chr": "6",  "hm_pos": 32433162,  "effect_allele": "G", "other_allele": "C"},
+        {"hm_chr": "9",  "hm_pos": 22041999,  "effect_allele": "G", "other_allele": "C"},
+        {"hm_chr": "10", "hm_pos": 112952395, "effect_allele": "G", "other_allele": "C"},
+        {"hm_chr": "11", "hm_pos": 67184494,  "effect_allele": "C", "other_allele": "G"},
+        {"hm_chr": "11", "hm_pos": 108272729, "effect_allele": "G", "other_allele": "C"},
+        {"hm_chr": "14", "hm_pos": 36669089,  "effect_allele": "C", "other_allele": "G"},
+        {"hm_chr": "15", "hm_pos": 40630717,  "effect_allele": "C", "other_allele": "G"},
+        {"hm_chr": "18", "hm_pos": 54246103,  "effect_allele": "C", "other_allele": "G"}
+      ]
+    },
+    "non_palindromic_autosomal_required": 102,
+    "non_palindromic_autosomal_matched": 88,
+    "matched_breakdown": {
+      "direct_match_from_original_vcf": 51,
+      "recovered_by_imputation": 37
+    },
+    "non_palindromic_autosomal_unmatched": 14
+  },
+
+  "coverage": {
+    "numerator": 88,
+    "denominator": 111,
+    "coverage_pct": 79.28,
+    "threshold_pct": 90.0,
+    "passes_threshold": false
+  },
+
+  "remediation": {
+    "imputation_invoked": true,
+    "imputation_command": "python3 scripts/imputation.py cases/case_07_hg00096_invalid_alleles/input/HG00096_PGS000577_invalid_alleles.vcf.gz scoring_models/PGS000577/PGS000577_hmPOS_GRCh38.txt.gz cases/case_07_hg00096_invalid_alleles/agent_output/HG00096_imputed.vcf.gz",
+    "imputation_exit_code": 0,
+    "imputation_summary": "expected=117, present=64, missing=53, recovered=46, unrecovered=7 (chr10:1, chrX:6)"
+  },
+
+  "unrecovered_variants": {
+    "total_unrecovered": 14,
+    "categories": {
+      "invalid_iupac_alleles": {
+        "count": 13,
+        "reason": "Variant is present in the patient VCF but carries an IUPAC ambiguity code in REF or ALT that cannot be resolved to a definitive nucleotide. Alleles cannot be reconciled with or without strand complementation. These variants are unrecoverable and were not passed to imputation.",
+        "variants": [
+          {"hm_chr": "1",  "hm_pos": 150685811, "effect_allele": "G", "other_allele": "A", "vcf_ref": "R", "vcf_alt": "G",  "iupac_issue": "REF=R (A or G)"},
+          {"hm_chr": "2",  "hm_pos": 43326810,  "effect_allele": "T", "other_allele": "C", "vcf_ref": "T", "vcf_alt": "Y",  "iupac_issue": "ALT=Y (C or T)"},
+          {"hm_chr": "2",  "hm_pos": 241443449, "effect_allele": "T", "other_allele": "C", "vcf_ref": "V", "vcf_alt": "T",  "iupac_issue": "REF=V (A, C or G)"},
+          {"hm_chr": "3",  "hm_pos": 87061524,  "effect_allele": "T", "other_allele": "C", "vcf_ref": "T", "vcf_alt": "K",  "iupac_issue": "ALT=K (G or T)"},
+          {"hm_chr": "6",  "hm_pos": 32224554,  "effect_allele": "A", "other_allele": "G", "vcf_ref": "M", "vcf_alt": "G",  "iupac_issue": "REF=M (A or C)"},
+          {"hm_chr": "8",  "hm_pos": 127310936, "effect_allele": "T", "other_allele": "C", "vcf_ref": "K", "vcf_alt": "C",  "iupac_issue": "REF=K (G or T)"},
+          {"hm_chr": "10", "hm_pos": 125008303, "effect_allele": "C", "other_allele": "T", "vcf_ref": "S", "vcf_alt": "C",  "iupac_issue": "REF=S (C or G)"},
+          {"hm_chr": "11", "hm_pos": 113936459, "effect_allele": "G", "other_allele": "A", "vcf_ref": "G", "vcf_alt": "H",  "iupac_issue": "ALT=H (A, C or T)"},
+          {"hm_chr": "12", "hm_pos": 14263984,  "effect_allele": "G", "other_allele": "A", "vcf_ref": "A", "vcf_alt": "Y",  "iupac_issue": "ALT=Y (C or T)"},
+          {"hm_chr": "12", "hm_pos": 114247766, "effect_allele": "A", "other_allele": "G", "vcf_ref": "V", "vcf_alt": "G",  "iupac_issue": "REF=V (A, C or G)"},
+          {"hm_chr": "12", "hm_pos": 132491403, "effect_allele": "G", "other_allele": "A", "vcf_ref": "R", "vcf_alt": "A",  "iupac_issue": "REF=R (A or G)"},
+          {"hm_chr": "19", "hm_pos": 38244973,  "effect_allele": "C", "other_allele": "T", "vcf_ref": "C", "vcf_alt": "R",  "iupac_issue": "ALT=R (A or G)"},
+          {"hm_chr": "20", "hm_pos": 62440555,  "effect_allele": "C", "other_allele": "T", "vcf_ref": "K", "vcf_alt": "T",  "iupac_issue": "REF=K (G or T)"}
+        ]
+      },
+      "imputation_failure": {
+        "count": 1,
+        "reason": "Variant was absent from the patient VCF and could not be recovered by the imputation tool.",
+        "variants": [
+          {"hm_chr": "10", "hm_pos": 46046324, "effect_allele": "T", "other_allele": "C", "effect_weight": 0.207014169384326}
+        ]
+      }
+    }
+  },
+
+  "excluded_sex_chromosome_variants": {
+    "count": 6,
+    "variants": [
+      {"hm_chr": "X", "hm_pos": 9846095,  "effect_allele": "A", "other_allele": "G"},
+      {"hm_chr": "X", "hm_pos": 11464514, "effect_allele": "C", "other_allele": "T"},
+      {"hm_chr": "X", "hm_pos": 51498820, "effect_allele": "C", "other_allele": "T"},
+      {"hm_chr": "X", "hm_pos": 52867918, "effect_allele": "C", "other_allele": "T"},
+      {"hm_chr": "X", "hm_pos": 67801708, "effect_allele": "T", "other_allele": "C"},
+      {"hm_chr": "X", "hm_pos": 71188133, "effect_allele": "G", "other_allele": "A"}
+    ]
+  }
+}

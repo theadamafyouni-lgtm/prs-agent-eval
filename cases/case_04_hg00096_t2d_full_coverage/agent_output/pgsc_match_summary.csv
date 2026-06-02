@@ -1,0 +1,4 @@
+dataset,accession,score_pass,match_status,ambiguous,is_multiallelic,duplicate_best_match,duplicate_ID,match_flipped,match_IDs,count,percent
+HG00096,PGS000330_hmPOS_GRCh38,true,matched,false,false,false,false,true,NA,6585,0.10229316896004274
+HG00096,PGS000330_hmPOS_GRCh38,true,unmatched,,,,,,,40527,0.6295573665062494
+HG00096,PGS000330_hmPOS_GRCh38,true,matched,false,false,false,false,false,NA,6390268,99.2681494645337

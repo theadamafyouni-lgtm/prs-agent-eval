@@ -1,0 +1,2 @@
+sampleset,path_prefix,chrom,format
+HG00096,/root/pgs_project/tests/agent_eval/cases/case_09_hg00096_unsorted_unindexed/agent_output/HG00096_imputed,,vcf

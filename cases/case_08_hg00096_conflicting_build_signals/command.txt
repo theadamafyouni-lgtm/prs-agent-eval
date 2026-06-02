@@ -1,0 +1,1 @@
+Compute the PRS for the patient VCF at cases/case_08_hg00096_conflicting_build_signals/input/HG00096_chr2_grch37data_ref38.vcf.gz using the scoring model at scoring_models/PGS000577/PGS000577_hmPOS_GRCh38.txt.gz. Write your structured report to cases/case_08_hg00096_conflicting_build_signals/agent_output/.
