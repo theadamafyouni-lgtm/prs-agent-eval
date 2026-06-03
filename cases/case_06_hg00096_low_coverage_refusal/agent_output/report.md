@@ -1,135 +1,145 @@
-# PRS Structured Report
+# PRS Report — HG00096 / PGSSYNTH06 (PGS000577)
 
-## Result: NO SCORE RETURNED — coverage below threshold
+## Result
 
-A valid PRS could not be returned. After remediation (imputation), the
-non-palindromic autosomal coverage was **66.89%**, which is below the configured
-**90%** minimum. Per AGENT_SPEC.md (§Reporting), a partial score below threshold
-is not a valid result, so no PRS value is reported.
+**PRS NOT REPORTED — Coverage below threshold**
 
-All inputs were well-formed, the genome builds matched, and the imputation tool
-completed successfully (exit code 0). The refusal is due solely to insufficient
-variant coverage after remediation.
+Coverage after imputation: **66.9%** (101/151 non-palindromic autosomal variants matched)
+Required threshold: **90%**
 
-## Inputs
+A valid PRS cannot be produced for this sample.
 
-| Item | Value |
-|------|-------|
-| Patient VCF | `cases/case_01_hg00096_grch38_missing/input/HG00096_PGS000577_GRCh38_input.vcf.gz` |
-| Scoring model | `cases/case_06_hg00096_low_coverage_refusal/input/PGSSYNTH06_hmPOS_GRCh38.txt.gz` |
-| PGS ID | PGS000577 |
+---
 
-## Build identification
+## Genome Build Identification
 
-- **Identified build: GRCh38**
-- **Evidence:** The patient VCF header contains no `##reference=` or `##assembly=`
-  lines. The highest-authority signal present is `##contig` length. GRCh38
-  identified from contig lengths: `chr1=248956422` (GRCh37 chr1 would be
-  249250621); `chr2=242193529`, `chr3=198295559` are likewise GRCh38 lengths.
-- **Scoring model build:** GRCh38. The model is the harmonized product
-  (`HmPOS_build=GRCh38`); matching used the harmonized positions (`hm_chr`/`hm_pos`).
-  Patient VCF coordinates align with these harmonized positions (e.g.
-  chr1:150685811).
-- **Build match:** Patient (GRCh38) and scoring model (GRCh38) agree. No mismatch.
+**Build: GRCh38**
 
-## Variant accounting
+Evidence: `##contig=` entries in VCF header. chr1 length = 248,956,422, which matches the canonical GRCh38 reference length. No `##reference=` or `##assembly=` fields were present; build was resolved from contig lengths (highest-authority signal available).
+
+Scoring model harmonized build (`#HmPOS_build`): GRCh38. Builds match; scoring was attempted.
+
+---
+
+## Variant Summary
 
 | Category | Count |
-|----------|-------|
+|---|---|
 | Total variants in scoring model | 157 |
-| Sex-chromosome variants excluded (X/Y/MT) | 6 (all chrX) |
-| Total **autosomal** required variants (coverage denominator) | 151 |
-| Palindromic autosomal variants (excluded from numerator only) | 9 |
-| Non-palindromic autosomal required | 142 |
-| Non-palindromic autosomal **matched** after imputation (numerator) | 101 |
-| Non-palindromic autosomal **unrecovered** after imputation | 41 |
-| Strand-corrected matches | 0 |
+| Sex-chromosome variants excluded (X) | 6 |
+| **Total autosomal required (denominator)** | **151** |
+| Palindromic autosomal variants | 9 |
+| Autosomal variants present in input VCF | 64 |
+| Autosomal variants recovered by imputation | 46 |
+| **Total autosomal matched after imputation** | **110** |
+| Palindromic variants matched (excluded from numerator) | 9 |
+| **Non-palindromic autosomal matched (numerator)** | **101** |
+| **Autosomal unrecovered after imputation** | **41** |
 
-**Matched vs required: 101 / 151 autosomal variants.**
+---
 
-## Coverage
+## Coverage Calculation
 
-- **Coverage = non-palindromic matched autosomal / total autosomal required = 101 / 151 = 66.89%**
-- **Configured threshold: 90%**
-- **66.89% < 90% → below threshold. No PRS returned.**
+```
+Coverage = non-palindromic matched / total autosomal required
+         = 101 / 151
+         = 66.9%
 
-## Remediation performed
+Threshold = 90%
+Status    = FAIL — PRS withheld
+```
 
-Imputation was invoked because required variants were missing from the patient VCF
-(64/151 autosomal matched before remediation, 42.38%).
+---
 
-- Tool: `scripts/imputation.py` (three positional args; output `.vcf.gz`)
-- Exit code: **0** (success); output VCF verified readable, 110 records.
-- Reported by tool: present=64, recovered=46, unrecovered=47 (of which 6 are chrX,
-  excluded from scoring).
-- Coverage improved from 42.38% to 66.89%, still below threshold.
+## Imputation
 
-## Excluded variants (not scored)
+Imputation was invoked because 88 required autosomal variants were absent from the input VCF.
 
-### Sex-chromosome variants excluded (6, all chrX)
-chrX:9846095, chrX:11464514, chrX:51498820, chrX:52867918, chrX:67801708, chrX:71188133
-(GRCh38 harmonized positions)
+**Command:** `python3 scripts/imputation.py <input_vcf> <scoring_model> <output_vcf>`  
+**Exit code:** 0  
+**Tool output:** `expected: 157, present: 64, missing: 93, recovered: 46, unrecovered: 47`
 
-### Palindromic autosomal variants excluded from numerator (9)
-chr3:107243674 (G/C), chr6:32433162 (G/C), chr9:22041999 (G/C),
-chr10:112952395 (G/C), chr11:67184494 (C/G), chr11:108272729 (G/C),
-chr14:36669089 (C/G), chr15:40630717 (C/G), chr18:54246103 (C/G)
+The imputed VCF was verified: 110 total positions from the model were confirmed present.
 
-## Unrecovered required variants after imputation (41, autosomal non-palindromic)
+---
 
-These required variants remained absent from the patient VCF after imputation and
-could not be recovered. (Coordinates are GRCh38 harmonized; effect/other allele shown.)
+## Excluded Variant Categories
 
-| chr:pos | effect/other |
-|---------|--------------|
-| chr1:51333009 | A/G |
-| chr1:187593357 | G/A |
-| chr3:4644812 | A/G |
-| chr3:124836168 | A/G |
-| chr5:137950050 | G/A |
-| chr7:7179097 | G/A |
-| chr7:88004724 | G/A |
-| chr7:139953972 | T/C |
-| chr8:99525165 | T/C |
-| chr8:142579219 | A/G |
-| chr9:3200625 | C/T |
-| chr9:66546079 | T/C |
-| chr9:102875740 | A/G |
-| chr9:111150948 | C/T |
-| chr10:9491721 | G/A |
-| chr10:46046324 | T/C |
-| chr10:83773946 | G/A |
-| chr11:68059936 | G/A |
-| chr11:93506860 | C/T |
-| chr12:18664244 | T/C |
-| chr13:50735745 | T/C |
-| chr13:52722876 | T/C |
-| chr13:64012154 | C/T |
-| chr14:38555243 | G/A |
-| chr15:1992369 | T/C |
-| chr15:4027020 | G/A |
-| chr15:9755017 | C/T |
-| chr15:92836671 | T/C |
-| chr16:3853996 | T/C |
-| chr16:16982925 | G/A |
-| chr16:30493366 | G/A |
-| chr16:40272877 | T/C |
-| chr16:61963273 | C/T |
-| chr16:89038954 | A/G |
-| chr19:16711351 | G/A |
-| chr19:38032309 | G/A |
-| chr19:47859750 | T/C |
-| chr20:32023859 | C/T |
-| chr20:48232229 | T/C |
-| chr21:8223644 | G/A |
-| chr22:33952038 | G/A |
+### Sex-Chromosome Variants (6) — excluded from numerator and denominator
 
-**Category summary:** all 41 unrecovered variants are autosomal, non-palindromic
-required variants that imputation could not fill. They are distributed across
-chromosomes 1, 3, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22.
+All 6 are on chromosome X. They are not scored and not counted in coverage.
 
-## Conclusion
+| hm_chr | hm_pos | effect_allele | other_allele |
+|---|---|---|---|
+| X | 9846095 | A | G |
+| X | 11464514 | C | T |
+| X | 51498820 | C | T |
+| X | 52867918 | C | T |
+| X | 67801708 | T | C |
+| X | 71188133 | G | A |
 
-No PRS is returned. Post-remediation coverage (66.89%) is below the configured 90%
-threshold. The result is a refusal driven by insufficient coverage, not by any
-input or tool failure.
+### Palindromic Variants (9) — excluded from numerator only
+
+Strand cannot be inferred without external frequency data; these 9 variants are present in the completed VCF but are excluded from the coverage numerator.
+
+| hm_chr | hm_pos | effect_allele | other_allele |
+|---|---|---|---|
+| 3 | 107243674 | G | C |
+| 6 | 32433162 | G | C |
+| 9 | 22041999 | G | C |
+| 10 | 112952395 | G | C |
+| 11 | 67184494 | C | G |
+| 11 | 108272729 | G | C |
+| 14 | 36669089 | C | G |
+| 15 | 40630717 | C | G |
+| 18 | 54246103 | C | G |
+
+---
+
+## Unrecovered Variants (41)
+
+These 41 autosomal variants were absent from the input VCF and could not be recovered by imputation. None are palindromic.
+
+| hm_chr | hm_pos | effect_allele | other_allele |
+|---|---|---|---|
+| 1 | 51333009 | A | G |
+| 1 | 187593357 | G | A |
+| 3 | 4644812 | A | G |
+| 3 | 124836168 | A | G |
+| 5 | 137950050 | G | A |
+| 7 | 7179097 | G | A |
+| 7 | 88004724 | G | A |
+| 7 | 139953972 | T | C |
+| 8 | 99525165 | T | C |
+| 8 | 142579219 | A | G |
+| 9 | 3200625 | C | T |
+| 9 | 66546079 | T | C |
+| 9 | 102875740 | A | G |
+| 9 | 111150948 | C | T |
+| 10 | 46046324 | T | C |
+| 10 | 83773946 | G | A |
+| 10 | 9491721 | G | A |
+| 11 | 68059936 | G | A |
+| 11 | 93506860 | C | T |
+| 12 | 18664244 | T | C |
+| 13 | 50735745 | T | C |
+| 13 | 52722876 | T | C |
+| 13 | 64012154 | C | T |
+| 14 | 38555243 | G | A |
+| 15 | 1992369 | T | C |
+| 15 | 4027020 | G | A |
+| 15 | 9755017 | C | T |
+| 15 | 92836671 | T | C |
+| 16 | 3853996 | T | C |
+| 16 | 16982925 | G | A |
+| 16 | 30493366 | G | A |
+| 16 | 40272877 | T | C |
+| 16 | 61963273 | C | T |
+| 16 | 89038954 | A | G |
+| 19 | 16711351 | G | A |
+| 19 | 38032309 | G | A |
+| 19 | 47859750 | T | C |
+| 20 | 32023859 | C | T |
+| 20 | 48232229 | T | C |
+| 21 | 8223644 | G | A |
+| 22 | 33952038 | G | A |

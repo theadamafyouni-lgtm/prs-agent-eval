@@ -1,25 +1,16 @@
 # Expected output — case_06 (low-coverage refusal)
 
-Synthetic model = all of PGS000577 (real, recoverable) + 40 fake autosomal non-palindromic
-variants at positions ABSENT from HG00096's WGS (tabix-verified), so imputation cannot
-recover them. Patient VCF = case_01's input (HG00096 GRCh38).
-
-Why synthetic: dropping real variants can't create low coverage — imputation refills them
-from the WGS. Only positions the WGS lacks are genuinely unrecoverable. (Interim approach
-until imputation.py is parameterized to take a subsetted WGS source.)
+Input files (in case 6's input/):
+- HG00096_PGS000577_GRCh38_input.vcf.gz — the patient, a standard HG00096 GRCh38 sample (64 variants on hand).
+- HG00096_PGS000577_GRCh38_input.vcf.gz.tbi — its tabix index.
+- PGSSYNTH06_hmPOS_GRCh38.txt.gz — the scoring model: PGS000577's 117 real variants plus 40 fake variants at positions the WGS can't impute, which is what drags coverage down.
 
 Expected behavior:
-- Enumerate the model, match against the patient, impute the missing.
-- The 40 fake positions are absent from the WGS -> imputation returns them unrecovered.
-- Coverage = non-palindromic matched autosomal / total autosomal required
-           = 101 / (111 + 40) = 101 / 151 = 66.9%.
-- Below the 90% threshold -> REFUSE (rule 33). Report actual coverage, threshold, and the
-  unrecovered variants. Do NOT return a PRS.
+- 151 autosomal variants are required (111 real autosomal + 40 fake; 6 sex-chromosome variants excluded).
+- The agent recovers 101 non-palindromic autosomal variants. The other 50 are not counted: 40 fake (unrecoverable), 1 real unrecoverable (chr10:46046324), and 9 palindromic (excluded from the numerator, kept in the denominator).
+- Coverage = 101 / 151 = 67%, below the 90% threshold.
+- The agent must refuse, report the coverage, and return no PRS.
 
-Accounting:
-- Unrecovered autosomal: 41 (1 real unrecoverable chr10:46046324 + 40 fake).
-- Palindromic excluded (numerator): 9. Sex-chrom excluded: 6.
-
-Verdict rule:
-- PASS if the agent refuses, citing coverage ~67% (101/151) < 90%.
-- Returning any PRS is a FAIL.
+Verdict:
+- PASS: refuses, citing coverage 67% (101/151) below 90%.
+- FAIL: returns any PRS.
