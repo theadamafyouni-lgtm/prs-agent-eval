@@ -1,82 +1,88 @@
 #!/usr/bin/env python3
 """
-build_fixture.py - case_07 (invalid alleles, EXPLORATORY)
+Build the case 7 input: take the clean case 1 VCF, corrupt the alleles of 20
+variants with invalid letters, and record which 20 were changed.
 
-Corrupts ~20% of case_01's input records by replacing a REF or ALT base with an
-invalid (non-ACGT) character (Z, IUPAC ambiguity codes). No spec rule defines
-invalid-allele handling yet -- this run OBSERVES current behavior to shape V11 #6.
-
-~20% is deliberately below the proposed 25% "structurally malformed -> refuse"
-threshold, so the target behavior (once #6 exists) is RECOVERY: drop invalid rows,
-treat as missing, impute from WGS, recover, return case_01's 8.96587.
-
-Left operationally clean (bgzipped, tabix-indexed) to isolate invalid-allele handling.
-
-    python3 build_fixture.py
+Substitution (per spec design): A->B, C->S, T->L, G->J
+Edits are done on the raw text, so the invalid bases write fine regardless of
+what a VCF parser would accept.
 """
 
 import gzip
 import random
-import subprocess
-from pathlib import Path
 
-FRACTION = 0.20
-SEED = 0x07BAD
-INVALID = ["Z", "R", "Y", "S", "W", "K", "M", "B", "D", "H", "V"]  # non-ACGT
+# ---- config: set these before running ----
+CLEAN_VCF = "/root/pgs_project/tests/agent_eval/cases/case_01_hg00096_grch38_missing/expected_output/HG00096_PGS000577_GRCh38_clean.vcf.gz"
+OUT_VCF = "/root/pgs_project/tests/agent_eval/cases/case_07_hg00096_invalid_alleles/input/HG00096_PGS000577_GRCh38_invalid.vcf"
+CHANGED = "/root/pgs_project/tests/agent_eval/cases/case_07_hg00096_invalid_alleles/expected_output/changed_variants.txt"
+N         = 20
+FIELD     = "REF"   # corrupt this allele only: "REF" or "ALT"
+SUBS      = {"A": "B", "C": "S", "T": "L", "G": "J"}
+SEED      = 7       # deterministic selection
+# -------------------------------------------
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-CASES_DIR = SCRIPT_DIR.parent
-SRC = (CASES_DIR / "case_01_hg00096_grch38_missing" / "input"
-       / "HG00096_PGS000577_GRCh38_input.vcf.gz")
-OUT_DIR = SCRIPT_DIR / "input"
-OUT_VCF = OUT_DIR / "HG00096_PGS000577_invalid_alleles.vcf"
-OUT_GZ = Path(str(OUT_VCF) + ".gz")
-
-
-def read_lines(path):
-    with gzip.open(path, "rt") as fh:
-        return fh.read().splitlines()
+PALINDROMES = {("A", "T"), ("T", "A"), ("C", "G"), ("G", "C")}
+COL = {"REF": 3, "ALT": 4}[FIELD]
 
 
-def main():
-    if not SRC.exists():
-        raise SystemExit(f"source not found: {SRC}")
-
-    lines = read_lines(SRC)
-    header = [l for l in lines if l.startswith("#")]
-    body = [l for l in lines if not l.startswith("#")]
-
-    rng = random.Random(SEED)
-    n = max(1, round(len(body) * FRACTION))
-    targets = sorted(rng.sample(range(len(body)), n))
-
-    log = []
-    for i in targets:
-        cols = body[i].split("\t")          # 0 CHROM 1 POS 2 ID 3 REF 4 ALT ...
-        field = rng.choice([3, 4])          # corrupt REF or ALT
-        bad = rng.choice(INVALID)
-        old = cols[field]
-        cols[field] = bad
-        body[i] = "\t".join(cols)
-        log.append((cols[0], cols[1], "REF" if field == 3 else "ALT", old, bad))
-
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    with open(OUT_VCF, "w") as fh:
-        fh.write("\n".join(header + body) + "\n")
-    if OUT_GZ.exists():
-        OUT_GZ.unlink()
-    subprocess.run(["bgzip", "-f", str(OUT_VCF)], check=True)
-    subprocess.run(["tabix", "-p", "vcf", str(OUT_GZ)], check=True)
-
-    print(f"source       : {SRC}")
-    print(f"output       : {OUT_GZ} (+ .tbi)")
-    print(f"records      : {len(body)}")
-    print(f"corrupted    : {n} ({n/len(body)*100:.1f}%)  [below proposed 25% refuse threshold]")
-    print(f"invalid chars: {sorted(set(x[4] for x in log))}")
-    print("corrupted records (chr pos field old->new):")
-    for x in log:
-        print(f"  {x[0]} {x[1]} {x[2]} {x[3]}->{x[4]}")
+def is_eligible(fields):
+    # autosomal, biallelic SNP, non-palindromic so it counts toward the score
+    chrom = fields[0].replace("chr", "")
+    if chrom not in {str(i) for i in range(1, 23)}:
+        return False
+    ref, alt = fields[3].upper(), fields[4].upper()
+    if len(ref) != 1 or len(alt) != 1:
+        return False
+    if ref not in SUBS or alt not in SUBS:
+        return False
+    if (ref, alt) in PALINDROMES:
+        return False
+    return True
 
 
-if __name__ == "__main__":
-    main()
+def corrupt(allele):
+    return "".join(SUBS.get(b.upper(), b) for b in allele)
+
+
+# read all lines, find eligible data records
+opener = gzip.open if CLEAN_VCF.endswith(".gz") else open
+with opener(CLEAN_VCF, "rt") as fh:
+    lines = fh.readlines()
+
+eligible = []
+for i, line in enumerate(lines):
+    if line.startswith("#"):
+        continue
+    if is_eligible(line.rstrip("\n").split("\t")):
+        eligible.append(i)
+
+if len(eligible) < N:
+    raise SystemExit(f"only {len(eligible)} eligible variants, need {N}")
+
+random.seed(SEED)
+chosen = sorted(random.sample(eligible, N))
+
+# corrupt the chosen records and log the change
+changed = []
+for i in chosen:
+    fields = lines[i].rstrip("\n").split("\t")
+    original = fields[COL]
+    fields[COL] = corrupt(original)
+    lines[i] = "\t".join(fields) + "\n"
+    changed.append((fields[0], fields[1], fields[2], original, fields[COL]))
+
+with open(OUT_VCF, "w") as fh:
+    fh.writelines(lines)
+
+with open(CHANGED, "w") as fh:
+    fh.write(f"# {N} variants corrupted in {FIELD}; map A->B C->S T->L G->J\n")
+    fh.write("CHROM\tPOS\tID\tORIGINAL\tCHANGED\n")
+    for row in changed:
+        fh.write("\t".join(row) + "\n")
+
+print(f"corrupted {len(changed)} variants in {FIELD}, wrote:")
+print(f"  input:   {OUT_VCF}")
+print(f"  changed: {CHANGED}")
+print("\nselected variants:")
+for row in changed:
+    print("  " + "\t".join(row))

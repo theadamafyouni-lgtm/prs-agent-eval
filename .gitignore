@@ -27,7 +27,6 @@ Thumbs.db
 
 # large per-case fixtures (>100MB GitHub limit) — regenerate via build_fixture.py
 cases/case_04_hg00096_t2d_full_coverage/input/
-cases/case_08_hg00096_conflicting_build_signals/input/
 scoring_models/PGS000330/
 
 # heavy independent pgsc_calc run outputs — gold value lives in expected_output.md

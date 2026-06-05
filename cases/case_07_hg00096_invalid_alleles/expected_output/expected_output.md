@@ -1,25 +1,17 @@
-# Expected output — case_07 (invalid alleles, EXPLORATORY)
+# Case 7 expected: invalid alleles
 
-Input is case_01's VCF with ~20% of records corrupted: a REF or ALT base replaced with an
-invalid non-ACGT character (Z, IUPAC ambiguity codes). Below the proposed 25%
-"structurally malformed -> refuse" threshold (V11 #6).
+## Input
+- `input/HG00096_PGS000577_GRCh38_invalid.vcf.gz` — HG00096, GRCh38, with 20 variants whose REF allele was changed to an invalid letter (A->B, C->S, T->L, G->J). The 20 are listed in `changed_variants.txt`.
+- Scoring model PGS000577 (GRCh38).
 
-EXPLORATORY: the current spec (V10) says nothing about invalid alleles. This run observes
-what the agent does, to shape V11 #6. No firm pass/fail under the current spec.
+## Expected behavior
+- Identify build GRCh38, confirm scoring model is GRCh38, no mismatch.
+- Enumerate the required variants and find 20 whose patient allele is not A, C, G, or T.
+- The 20 invalid variants are below the refuse threshold, so drop them and impute from the WGS via `imputation.py`.
+- Verify the completed VCF, run pgsc_calc with `--target_build GRCh38`.
+- All 20 are recovered; the post-remediation state is identical to case 1, so coverage is at or above the 90% threshold.
 
-Anticipated future behavior (once #6 exists), at <25% invalid:
-- Detect invalid rows, drop them, treat positions as missing, impute from WGS, recover,
-  return case_01's PRS = 8.96587.
-
-What may happen NOW (to confirm):
-- Corrupted patient records won't match the model's valid alleles -> those model variants
-  read as "missing" -> imputed from WGS -> recovered. If so, the agent may land on 8.96587
-  WITHOUT any invalid-allele rule (incidental robustness via missing->impute). OR the invalid
-  characters crash a tool (agent matching, imputation.py, pgsc_calc) -> stop (cf. case_08).
-  OR it refuses / mishandles.
-
-Capture for V11 #6:
-- Did it notice the alleles were invalid, or just treat them as non-matching/missing?
-- Did anything crash on the invalid characters?
-- Final coverage / PRS if any (8.96587 = clean recovery via imputation).
-- Corrupted positions are logged by build_fixture for comparison.
+## Expected result
+- The 20 dropped variants impute back to the same genotypes as the clean file, so the score matches case 1's validated value.
+- PRS: 8.96587
+- Verdict: returns a PRS, does not refuse.

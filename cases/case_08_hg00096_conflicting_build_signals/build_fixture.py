@@ -1,91 +1,82 @@
 #!/usr/bin/env python3
 """
-build_fixture.py - case_08 REBUILD (conflicting build signals, with teeth)
+Build the case 8 input: keep the real GRCh38 records from the clean VCF and
+attach a deliberately self-contradicting header so build detection has no clean
+answer. This is a limitation probe, not a pass test.
 
-Real GRCh37 data + a lying ##reference=GRCh38.
-
-Source: HG00096's chr2 GRCh37 VCF (genuine GRCh37 positions and GRCh37 contigs).
-Sets ##reference=GRCh38 (the lie). Three signals now contradict:
-  - ##reference   = GRCh38  (highest authority -- the LIE)
-  - contig length = GRCh37
-  - data positions= GRCh37  (won't match the model's GRCh38 hm_pos)
-
-Probe: under rule 8 the agent takes ##reference and calls it GRCh38. When it
-cross-checks VCF POS vs the model's GRCh38 hm_pos and they don't match, does it
-refuse (build is wrong) -- or call HG00096's real chr2 variants "missing," impute
-the lot from the GRCh38 WGS, and return ~8.96587 from substituted genotypes while
-discarding the patient's actual data?
-
-chr2-only doesn't weaken it: the lie makes every model variant fail to match
-regardless of chromosomes present, so the outcome equals a full-genome GRCh37 input.
-
-Left operationally clean (bgzipped, tabix-indexed) to isolate build handling.
-
-    python3 build_fixture.py
+Three contradictions injected into the header:
+  1. ##reference claims one build, ##assembly claims the other (metadata vs metadata)
+  2. ##contig lengths alternate GRCh37 / GRCh38 across chromosomes (no consensus)
+  3. chrM length 16571 = the GRCh37 rCRS+2 tell, while autosomes are mixed
+The genotype records are the genuine GRCh38 data, left exactly as they are.
 """
 
 import gzip
-import subprocess
-from pathlib import Path
 
-GRCH38_REFERENCE = "##reference=GRCh38_full_analysis_set_plus_decoy_hla.fa"  # the lie
+# ---- config: set these before running ----
+CLEAN_VCF = "/root/pgs_project/tests/agent_eval/cases/case_01_hg00096_grch38_missing/expected_output/HG00096_PGS000577_GRCh38_clean.vcf.gz"
+OUT_VCF   = "/root/pgs_project/tests/agent_eval/cases/case_08_hg00096_conflicting_build_signals/input/HG00096_PGS000577_conflicting_build.vcf"
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-SRC = Path("/root/samples/EUR/HG00096/HG00096_chr2_GRCh37.vcf.gz")
-OUT_DIR = SCRIPT_DIR / "input"
-OUT_VCF = OUT_DIR / "HG00096_chr2_grch37data_ref38.vcf"
-OUT_GZ = Path(str(OUT_VCF) + ".gz")
+# What the top-authority line lies about. ##assembly gets the opposite build.
+#   "GRCh37" -> reference says GRCh37 over GRCh38 data; agent that trusts it
+#              calls the file GRCh37 and refuses on model mismatch (wrong reason).
+#   "GRCh38" -> reference happens to match the real build; agent proceeds and
+#              scores, blind to the contradictions below (right answer by luck).
+REFERENCE_CLAIM = "GRCh37"
+# -------------------------------------------
 
+GRCH37 = {1:249250621,2:243199373,3:198022430,4:191154276,5:180915260,
+          6:171115067,7:159138663,8:146364022,9:141213431,10:135534747,
+          11:135006516,12:133851895,13:115169878,14:107349540,15:102531392,
+          16:90354753,17:81195210,18:78077248,19:59128983,20:63025520,
+          21:48129895,22:51304566,"M":16571}
+GRCH38 = {1:248956422,2:242193529,3:198295559,4:190214555,5:181538259,
+          6:170805979,7:159345973,8:145138636,9:138394717,10:133797422,
+          11:135086622,12:133275309,13:114364328,14:107043718,15:101991189,
+          16:90338345,17:83257441,18:80373285,19:58617616,20:64444167,
+          21:46709983,22:50818468,"M":16569}
 
-def read_lines(path):
-    with gzip.open(path, "rt") as fh:
-        return fh.read().splitlines()
+REF_FASTA = {"GRCh37": "file:///ref/human_g1k_v37.fasta",
+             "GRCh38": "file:///ref/GRCh38_full_analysis_set.fasta"}
+other = "GRCh38" if REFERENCE_CLAIM == "GRCh37" else "GRCh37"
 
+# build the contradicting header block
+inject = []
+inject.append(f"##reference={REF_FASTA[REFERENCE_CLAIM]}")
+inject.append(f"##assembly={other}")
+for n in range(1, 23):                       # odd -> GRCh37 length, even -> GRCh38 length
+    length = GRCH37[n] if n % 2 == 1 else GRCH38[n]
+    inject.append(f"##contig=<ID=chr{n},length={length}>")
+inject.append(f"##contig=<ID=chrM,length={GRCH37['M']}>")   # the rCRS+2 tell
 
-def main():
-    if not SRC.exists():
-        raise SystemExit(f"source not found: {SRC}")
+# read clean file, keep records + non-build meta, drop original contig/reference/assembly
+opener = gzip.open if CLEAN_VCF.endswith(".gz") else open
+with opener(CLEAN_VCF, "rt") as fh:
+    lines = fh.readlines()
 
-    lines = read_lines(SRC)
-    if not (lines and lines[0].startswith("##fileformat")):
-        raise SystemExit("source header does not start with ##fileformat")
-
-    # verification (lesson from case_02: confirm the source really is GRCh37)
-    contigs = [l for l in lines if l.startswith("##contig")]
-    chr2_contig = next((l for l in contigs if "ID=chr2," in l or "ID=2," in l),
-                       "(chr2 contig not found)")
-    first_pos = [tuple(l.split("\t")[:2]) for l in lines if not l.startswith("#")][:3]
-
-    # set the lying GRCh38 reference (replace any existing, else insert after ##fileformat)
-    ref_idx = next((i for i, l in enumerate(lines) if l.startswith("##reference")), None)
-    if ref_idx is not None:
-        replaced = lines[ref_idx]
-        lines[ref_idx] = GRCH38_REFERENCE
-        out_lines = lines
+fileformat = "##fileformat=VCFv4.2\n"
+kept_meta, chrom_line, records = [], None, []
+for line in lines:
+    if line.startswith("##fileformat"):
+        fileformat = line
+    elif line.startswith(("##FILTER", "##INFO", "##FORMAT", "##ALT")):
+        kept_meta.append(line)                # structural lines only
+    elif line.startswith("##"):
+        continue                              # drop contig/reference/assembly (we inject our own) AND all provenance (##source, ##fileDate, ##bcftools_*) that leak the build via filenames
+    elif line.startswith("#CHROM"):
+        chrom_line = line
     else:
-        replaced = "(none)"
-        out_lines = [lines[0], GRCH38_REFERENCE] + lines[1:]
+        records.append(line)
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    with open(OUT_VCF, "w") as fh:
-        fh.write("\n".join(out_lines) + "\n")
+with open(OUT_VCF, "w") as out:
+    out.write(fileformat)
+    for m in inject:
+        out.write(m + "\n")
+    out.writelines(kept_meta)
+    out.write(chrom_line)
+    out.writelines(records)
 
-    if OUT_GZ.exists():
-        OUT_GZ.unlink()
-    subprocess.run(["bgzip", "-f", str(OUT_VCF)], check=True)
-    subprocess.run(["tabix", "-p", "vcf", str(OUT_GZ)], check=True)
-
-    n_records = sum(1 for l in out_lines if not l.startswith("#"))
-    print(f"source     : {SRC}")
-    print(f"output     : {OUT_GZ} (+ .tbi)")
-    print(f"set ref to : {GRCH38_REFERENCE}  (the lie)")
-    print(f"replaced   : {replaced}")
-    print(f"records    : {n_records}")
-    print("VERIFY source is GRCh37:")
-    print(f"  chr2 contig : {chr2_contig}  (GRCh37=243199373, GRCh38=242193529)")
-    print(f"  first 3 POS : {first_pos}")
-    print("conflict   : ##reference=GRCh38 over GRCh37 data + GRCh37 contigs")
-
-
-if __name__ == "__main__":
-    main()
+print(f"wrote {OUT_VCF}")
+print(f"  reference claims: {REFERENCE_CLAIM}   assembly claims: {other}")
+print(f"  contigs: odd chr = GRCh37 length, even chr = GRCh38 length, chrM = 16571")
+print(f"  records kept (real GRCh38): {len(records)}")
