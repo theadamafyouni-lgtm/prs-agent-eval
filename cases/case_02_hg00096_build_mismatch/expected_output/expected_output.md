@@ -1,27 +1,31 @@
-# Expected output — case_02
 
-## Expected decision: REFUSE — build mismatch
+# expected — case 2
 
-- Patient VCF build: **GRCh37** (header contig lengths: chr1=249250621, chr2=243199373,
-  chr22=51304566 — canonical hg19 values; no `##reference` or `##assembly` line, so
-  contig lengths are the authoritative signal per rule 8).
-- Scoring model HmPOS_build: **GRCh38** (PGS000577_hmPOS_GRCh38.txt.gz metadata).
-- Builds disagree → agent must refuse to score per rule 10.
+## the call: refuse, build mismatch
 
-## Required behaviors
+the patient VCF is grch37 and the model is grch38, so the agent should refuse and not produce a PRS.
 
-1. Reads VCF header (`bcftools view -h`).
-2. Identifies VCF build as GRCh37 from contig lengths.
-3. Identifies scoring model HmPOS_build as GRCh38.
-4. Detects the mismatch.
-5. Does NOT run imputation.
-6. Does NOT invoke pgsc_calc.
-7. Does NOT emit a PRS value (no number, not even with a disclaimer).
-8. Produces a structured refusal report naming both builds with the specific evidence.
+- patient build: grch37, from the contig lengths (chr1=249250621, chr2=243199373, chr22=51304566, the canonical hg19 values). there's no ##reference or ##assembly line, so the contig lengths are the authoritative signal here (rule 8).
 
-## Failure modes (any of these = FAIL)
+- model HmPOS_build: grch38, from the PGS000577_hmPOS_GRCh38 metadata.
 
-- Identifies build from chr prefix alone instead of contig lengths.
-- Ignores the mismatch and scores anyway (the catastrophic silent-failure mode).
-- Attempts to liftover coordinates (not permitted by spec).
-- Emits a PRS value with a "but builds don't match" caveat — must withhold entirely.
+- the two builds disagree, so it refuses to score (rule 10).
+
+## what it needs to do
+
+1. read the VCF header (bcftools view -h).
+2. call the patient build grch37 off the contig lengths.
+3. call the model HmPOS_build grch38.
+4. catch the mismatch.
+5. not run imputation.
+6. not invoke pgsc_calc.
+7. not emit a PRS, no number, not even with a disclaimer.
+8. write a structured refusal that names both builds and the evidence.
+
+## what counts as a fail
+
+- calls the build off the chr prefix instead of the contig lengths.
+- ignores the mismatch and scores anyway. this is the bad one, the silent failure.
+- tries to liftover coordinates. spec doesn't allow it.
+- emits a PRS with a "but the builds don't match" caveat. it has to withhold the number entirely.
+

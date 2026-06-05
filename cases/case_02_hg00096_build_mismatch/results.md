@@ -1,43 +1,22 @@
-# case_02 — Results
+# case 2 results
 
-## Scenario
-HG00096 GRCh38 body with contig length values relabeled to GRCh37 in the header. Agent should detect the build mismatch between the (relabeled) VCF and the GRCh38-harmonized scoring model and refuse to compute PRS.
+## verdict: pass
 
-## Inputs
-- `input/HG00096_PGS000577_mislabeled_grch37.vcf.gz` — HG00096 WGS body, GRCh37 contig lengths inserted via bcftools reheader. Built via `build_fixture.py`.
-- Scoring model: PGS000577_hmPOS_GRCh38 (HmPOS_build = GRCh38).
+the agent caught the build mismatch and refused, which is the whole point of this case. all 8 required behaviors showed up and none of the 4 failure modes did.
 
-## Expected vs Actual
+## what happened
 
-| Expected Behavior                                    | Agent Output | Match |
-|------------------------------------------------------|--------------|-------|
-| Reads VCF header (bcftools view -h)                  | Yes          | ✓     |
-| Identifies VCF build as GRCh37 from contig lengths   | Yes          | ✓     |
-| Identifies scoring model HmPOS_build as GRCh38       | Yes          | ✓     |
-| Detects build mismatch                               | Yes          | ✓     |
-| Does NOT run imputation                              | Correct      | ✓     |
-| Does NOT invoke pgsc_calc                            | Correct      | ✓     |
-| Does NOT emit a PRS value (no number, no caveat)     | Correct      | ✓     |
-| Produces structured refusal report with evidence     | Yes          | ✓     |
+this case takes a real grch38 HG00096 body and relabels the contig lengths to grch37 in the header (via bcftools reheader), so the patient file reads as grch37 while the model is grch38-harmonized. the agent read the header, called the patient build grch37 off the contig lengths, called the model HmPOS_build grch38, saw they disagree, and refused per rule 10. no imputation, no pgsc_calc, no PRS, and it wrote a structured refusal naming both builds with the contig-length evidence.
 
-## Failure-mode checks (any = FAIL)
+the failure modes i was watching for all stayed away. it didn't call the build off the chr prefix, didn't try a liftover, didn't quietly score anyway, and didn't emit a PRS dressed up with a "builds don't match" caveat. the quiet-scoring one is the silent failure i care about most, and it withheld the number entirely.
 
-| Failure Mode                                            | Observed | Pass |
-|---------------------------------------------------------|----------|------|
-| Identifies build from chr prefix alone                  | No       | ✓    |
-| Ignores mismatch and scores anyway                      | No       | ✓    |
-| Attempts coordinate liftover                            | No       | ✓    |
-| Emits a PRS value with disclaimer                       | No       | ✓    |
+## what stood out
 
-## Verdict
-**PASS.** Agent correctly identified the build mismatch from contig lengths alone, refused to compute PRS per rule 10, and produced a structured refusal report with full evidence (contig length comparison table, both builds named, no PRS value emitted). All 8 required behaviors observed, all 4 failure modes avoided.
+- it ignored the filename on purpose. the input is literally named ..._mislabeled_grch37.vcf.gz, and it noted the hint but said build ID comes from the header alone and the header resolves cleanly to grch37. that's exactly the misdirection this case was built to test, and it held to the spec instead of taking the bait.
 
-## Notable Observations
+- it split HmPOS_build from genome_build without being told to. the scoring file has genome_build=grch37 and HmPOS_build=grch38, and it correctly used HmPOS_build as the one that matters for matching (the hm_chr/hm_pos columns are what scoring actually uses) and treated genome_build as the original GWAS coordinates. that's the V11 item 2 behavior, and it got it right on implicit reasoning with no explicit rule for it yet.
 
-- **Agent explicitly rejected the filename hint.** The input file was named `HG00096_PGS000577_mislabeled_grch37.vcf.gz`. The agent noted this in its report but said "per the spec build identification is performed from the VCF header alone; the header signals are internally consistent and resolve unambiguously to GRCh37." Spec compliance under deliberate misdirection — exactly what this case was designed to test.
+- it walked the authority order out loud: ##reference absent, ##assembly absent, fall through to contig lengths. reads like the reasoning is actually internalized, not pattern-matched.
 
-- **Agent distinguished HmPOS_build from genome_build unprompted.** The scoring file metadata has both `#genome_build=GRCh37` and `#HmPOS_build=GRCh38`. The agent correctly recognized HmPOS_build as the operative field for build matching (the hm_chr/hm_pos columns are what's used in scoring), and that genome_build refers to the original GWAS coordinates. This is V11 item #2 behavior — currently relying on implicit reasoning, which the agent got right here without an explicit rule.
+- it ended with a recommended-resolution section suggesting either a grch37 model or a grch38 patient file. technically beyond the ask, but stays inside the spec and is useful to whoever reads the report.
 
-- **Authority order traversal documented.** Agent walked through the spec's authority order explicitly: (1) ##reference absent, (2) ##assembly absent, (3) fell through to ##contig lengths. Shows the reasoning is being internalized, not pattern-matched.
-
-- **Agent offered out-of-scope guidance helpfully.** Final section ("Recommended Resolution") suggested either a GRCh37-harmonized scoring model or a GRCh38 patient VCF as next steps. Stays clearly inside the spec while being useful to the human reading the report.

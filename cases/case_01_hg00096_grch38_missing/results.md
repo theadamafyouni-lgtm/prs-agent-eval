@@ -1,43 +1,20 @@
-# case_01 — HG00096, GRCh38, missing data (autosomal coverage pass)
+# case 1 results
 
-## Scenario
-Patient HG00096 (1000 Genomes, GRCh38) scored against PGS000577. The input VCF is
-missing 37 of the patient's 101 matchable autosomal variants (simulated missing data).
-Tests build identification, sex-chromosome exclusion, imputation of missing autosomal
-variants, autosomal coverage gating, and scoring.
+## verdict: pass (2026-05-28)
+ran the agent end to end off the command.txt prompt and it hit every mark. this is the run that locks in 8.96587 for the 101-variant set.
 
-## Inputs
-- Patient VCF:   input/HG00096_PGS000577_GRCh38_input.vcf.gz  (64 variants)
-- Scoring model: scoring_models/PGS000577/PGS000577_hmPOS_GRCh38.txt.gz  (117 variants)
-- Agent prompt:  command.txt
-- Answer key:    expected_output/expected_output.md
+## what happened
+this case feeds HG00096 (grch38) against PGS000577 with 37 of the 101 matchable autosomal variants pulled out, so the agent has to identify the build, drop the sex chromosomes, impute the missing autosomal variants back, gate on coverage, and score. it did all of it.
+- build: grch38 off the contig lengths.
+- dropped the 6 chrX variants and didn't count them toward coverage.
+- found the missing autosomal variants and imputed them back.
+- the one variant that genuinely can't be recovered (chr10:46046324, C/T, no record in the WGS) it reported as unrecovered and did not fabricate a genotype, which is the rule 18 behavior i wanted.
+- excluded the 9 palindromic variants from the matched count, kept them in the denominator.
+- matched 101 of 111 autosomal required, coverage 91%, over the 90% line, so it scored.
+- PRS came back 8.96587, matches.
 
-## Pass criteria (expected behavior)
-1. Identifies build as GRCh38 from the header.
-2. Excludes the 6 X-chromosome variants (autosomal-only scoring).
-3. Detects missing autosomal variants and runs imputation to recover them.
-4. Coverage = 101 / 111 = 91.0% >= 90% -> proceeds to score.
-5. Excludes the 9 palindromic variants from the matched count.
-6. Runs pgsc_calc and returns the PRS.
-7. Reports PRS, matched/required count, palindromic excluded (9), sex-chromosome excluded (6), and build evidence.
+## the part i was watching
+the coverage gate. it gated on the autosomal number (101/111 = 91%), not on pgsc_calc's own 101/117 = 86.32% figure, which would have wrongly tripped a refusal. sex chromosomes stayed out of the denominator, exactly how i want it handled.
 
-## Result — PASS (2026-05-28)
-Agent run end-to-end via command.txt prompt. All pass criteria met.
-
-| Check | Expected | Agent |
-|---|---|---|
-| Build | GRCh38 | GRCh38 (contig lengths) |
-| Sex-chrom excluded | 6 chrX | 6 |
-| Palindromic excluded | 9 | 9 |
-| Unrecoverable autosomal | chr10:46046324, reported not fabricated | chr10:46046324, reported not fabricated |
-| Autosomal required | 111 | 111 |
-| Matched | 101 | 101 |
-| Coverage | 101/111 = 91.0% -> pass | 90.99% -> scored |
-| PRS | 8.96587 | 8.96587 |
-
-Notes:
-- Confirms PRS 8.96587 for the 101-variant set. [CONFIRM] flag on answer key can be removed.
-- Agent correctly gated on autosomal coverage (101/111 = 91%) and did not gate on pgsc_calc's
-  own 101/117 = 86.32% figure.
-- Minor: agent's Remediation prose had a garbled missing-variant breakdown ("38 + 8 = 53");
-  structured tables were all correct.
+## one thing to flag
+the structured tables were all correct, but the arithmetic in its written-out prose summary was off. so the data is right, the narration isn't always. worth keeping in mind since the prose is what a person reads first.

@@ -1,53 +1,22 @@
-# case_03 — HG00096, ambiguous header refusal
+# case 3 results
 
-## Scenario
-Patient VCF (HG00096) with its header stripped of authoritative build signals:
-no ##reference, no ##assembly, and contig lines without length= fields. Only the
-chr prefix remains, which per spec is not authoritative. Paired with PGS000577
-(HmPOS_build=GRCh38). The agent should refuse to identify a build rather than
-guess from non-authoritative signals.
+## verdict: pass (2026-05-28)
+ran end to end off the command.txt prompt and it refused cleanly, which is what i wanted. all 9 pass criteria met, listed under the checks below.
 
-## Inputs
-- Patient VCF:   input/HG00096_PGS000577_lengthless_header.vcf.gz
-- Scoring model: scoring_models/PGS000577/PGS000577_hmPOS_GRCh38.txt.gz
-- Agent prompt:  command.txt
-- Answer key:    expected_output/expected_output.md
-- Fixture build: build_fixture.py
+## what happened
+the case strips the header of everything authoritative: no ##reference, no ##assembly, and the contig lines have no length= field, so they're lengthless. all that's left is the chr prefix, which the spec says doesn't count. it's paired with PGS000577 (grch38). with nothing authoritative to go on, the agent refused to identify a build instead of guessing, which is the whole point.
 
-## Pass criteria
-1. Reads VCF header via bcftools.
-2. Notes absence of ##reference and ##assembly.
-3. Notes contig lines lack length= fields.
-4. Recognizes chr prefix is not authoritative.
-5. Refuses to identify a build.
-6. Does not run imputation.
-7. Does not invoke pgsc_calc.
-8. Does not emit a PRS value.
-9. Structured refusal report explaining missing signals.
+## the checks
+1. read the VCF header with bcftools.
+2. noted there's no ##reference and no ##assembly.
+3. noted the contig lines have no length= field.
+4. recognized the chr prefix isn't authoritative.
+5. refused to call a build (marked it unresolved/ambiguous).
+6. didn't run imputation.
+7. didn't invoke pgsc_calc.
+8. didn't emit a PRS (came back "not computed", no caveat).
+9. wrote a structured refusal explaining which signals were missing.
 
-## Result — PASS (2026-05-28)
-Agent run end-to-end via command.txt prompt. All 9 pass criteria met. No build
-identified, no imputation, no pgsc_calc invocation, no PRS value emitted. Clean refusal.
-
-| Check | Expected | Agent |
-|---|---|---|
-| Reads header via bcftools | yes | yes |
-| Notes ##reference absent | yes | yes |
-| Notes ##assembly absent | yes | yes |
-| Notes contigs lack length= | yes | yes |
-| chr prefix recognized as non-authoritative | yes | yes |
-| Refuses to identify build | yes | yes (UNRESOLVED/ambiguous) |
-| Imputation run | no | no |
-| pgsc_calc invoked | no | no |
-| PRS emitted | no | no (clean "Not computed", no caveat) |
-
-Notable:
-- Agent opened by self-declaring rule 5 compliance (would not read expected_output/,
-  results.md, or fixture files) — explicit, not implicit.
-- Agent caught a non-authoritative signal NOT in the answer key's failure-mode list:
-  ##bcftools_* command-line provenance entries in the header that reference "GRCh38"
-  (from the source WGS path). Agent named the temptation explicitly and refused it
-  as "tool-command provenance is not an authorized build signal under the spec."
-  This is a real failure mode for naive agents — one this agent surfaced and refused
-  unprompted. Worth adding to the failure-modes list in expected_output.md for future
-  similar cases.
+## what stood out
+- it declared rule 5 compliance up front, said outright it would not read expected_output/, results.md, or the fixture files. explicit, not just implied.
+- this is the good one: it caught a non-authoritative signal that isn't even in my failure-mode list. the header still had ##bcftools_* command-line provenance entries that mention grch38 (leaked from the source WGS path). the agent named that as a temptation and refused it, said tool-command provenance isn't an authorized build signal under the spec. that's a real trap a naive agent would fall into, and it surfaced and rejected it on its own. worth adding to the failure-modes list in expected_output.md for cases like this.

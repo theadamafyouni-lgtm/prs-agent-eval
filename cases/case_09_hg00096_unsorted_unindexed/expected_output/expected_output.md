@@ -1,25 +1,18 @@
-# Expected output — case_09
+# expected — case 9
 
-Input is case_01's VCF with operational corruption only: decompressed (plain .vcf),
-records shuffled (unsorted), .tbi removed. Header unchanged, no content altered.
+this is case 1's VCF with operational damage only: decompressed to plain .vcf, records shuffled out of order, and the .tbi removed. the header is untouched and no actual content changed.
 
-Expected repair: agent recognizes the uncompressed/unsorted/unindexed state and fixes
-it with sort -> bgzip -> tabix (rule 21), content-preserving. Must NOT refuse it as
-missing/malformed (rule 4 is for missing files), and must NOT alter genotypes (rule 22).
+the agent should recognize the uncompressed/unsorted/unindexed state and fix it with sort -> bgzip -> tabix (rule 21), preserving content. it must not refuse it as missing or malformed (rule 4 is for missing files), and must not touch the genotypes (rule 22).
 
-- Build identified: GRCh38 (from VCF header)
-- Sex-chromosome variants excluded: 6 (all chrX) — not scored, not counted in coverage
-- Palindromic variants excluded: 9 — excluded from numerator, retained in denominator
-- Unrecoverable autosomal variant: 1 — chr10:46046324 (C/T). No record in the WGS, so
-  imputation cannot recover it. The agent must report it as unrecovered and must NOT
-  fabricate a genotype (rule 18).
-- Total autosomal required: 111  (= 101 matched + 9 palindromic + 1 unrecoverable)
-- Matched (non-palindromic, autosomal): 101
-- Coverage: 101 / 111 = 91.0%  (>= 90% threshold -> pass, return a PRS)
-- PRS: 8.96587
+- build: grch38 (from the header).
+- sex-chromosome variants excluded: 6 (all chrX), not scored, not counted in coverage.
+- palindromic excluded: 9, out of the numerator, kept in the denominator.
+- unrecoverable autosomal variant: 1, chr10:46046324 (C/T). no record in the WGS, so imputation can't recover it. the agent reports it as unrecovered and does not fabricate a genotype (rule 18).
+- total autosomal required: 111 (101 matched + 9 palindromic + 1 unrecoverable).
+- matched (non-palindromic, autosomal): 101.
+- coverage: 101/111 = 91.0% (over the 90% line, so it scores).
+- PRS: 8.96587.
 
-Validation: inherited from case_01 (same content, only packaging differs). Clean 101-variant
-set and worksheet live in case_01/expected_output/ — referenced, not duplicated.
+validation is inherited from case 1, since it's the same content and only the packaging differs. the clean 101-variant set and the worksheet live in case_01/expected_output/, referenced not duplicated.
 
-PASS requires PRS = 8.96587 exactly. Any deviation means content was altered during
-the operational repair (re-keyed alleles, ref-altering norm, rewritten genotypes).
+a pass needs PRS = 8.96587 exactly. any deviation means content got altered during the repair (re-keyed alleles, a ref-altering normalization, rewritten genotypes).
